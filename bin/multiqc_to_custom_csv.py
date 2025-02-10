@@ -37,6 +37,7 @@ def parse_args(args=None):
         default="summary",
         help="Full path to output prefix (default: 'summary').",
     )
+    
     return parser.parse_args(args)
 
 
@@ -58,7 +59,6 @@ def find_tag(d, tag):
         if isinstance(v, dict):
             for i in find_tag(v, tag):
                 yield i
-
 
 def yaml_fields_to_dict(yaml_file, append_dict={}, field_mapping_list=[], valid_sample_list=[]):
     integer_fields = [
@@ -129,6 +129,7 @@ def yaml_fields_to_dict(yaml_file, append_dict={}, field_mapping_list=[], valid_
                             )
                 else:
                     append_dict[key] = "NA"
+
     return append_dict
 
 
@@ -162,8 +163,8 @@ def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_samp
                     row_list.append("NA")
             fout.write("{}\n".format(",".join(row_list)))
         fout.close()
-    return metrics_dict
 
+    return metrics_dict
 
 def main(args=None):
     args = parse_args(args)
@@ -174,43 +175,93 @@ def main(args=None):
             "multiqc_fastp.yaml",
             [
                 ("# Input reads", ["before_filtering", "total_reads"]),
-                ("# Trimmed reads (fastp)", ["after_filtering", "total_reads"]),
+                ("# Trimmed reads", ["after_filtering", "total_reads"]),
+                ("Reads forward", ["after_filtering", "read1_mean_length"]),
+                ("Reads reverse", ["after_filtering", "read2_mean_length"]),
             ],
         ),
         (
-            "multiqc_general_stats.yaml",
+            "kraken-top-n-plot_Unclassified.yaml",
             [
                 (
-                    "% Non-host reads (Kraken 2)",
-                    ["PREPROCESS: Kraken 2_mqc-generalstats-preprocess_kraken_2-Unclassified"],
+                    "# Non-host reads", ["Other"],
                 )
             ],
         ),
-        ("multiqc_bowtie2.yaml", [("% Mapped reads", ["overall_alignment_rate"])]),
+        (
+            "multiqc_bowtie2.yaml",
+            [
+                (
+                    "% Mapped reads", ["overall_alignment_rate"]
+                )
+            ]
+        ),
         (
             "multiqc_samtools_flagstat_samtools_bowtie2.yaml",
-            [("# Mapped reads", ["mapped_passed"])],
+            [
+                (
+                    "# Mapped reads", ["mapped_passed"]
+                )
+            ],
         ),
         (
             "multiqc_samtools_flagstat_samtools_ivar.yaml",
-            [("# Trimmed reads (iVar)", ["flagstat_total"])],
+            [
+                (
+                    "# Primer trimmed reads", ["flagstat_total"]
+                )
+            ],
+        ),
+        (
+            "multiqc_ivar_trim_primer_statistics.yaml",
+            [
+                ("Left primers", ["plus"]),
+                ("Right primers", ["minus"])
+            ]
+        ),
+        (
+            "multiqc_nextclade_clade.yaml", 
+            [   
+                ("Lineage", ["lineage"]),
+                ("Clade", ["clade"]),
+                ("Clade name", ["clade_name"])
+            ]
         ),
         (
             "multiqc_general_stats.yaml",
             [
                 (
                     "Coverage median",
-                    ["VARIANTS: mosdepth_mqc-generalstats-variants_mosdepth-median_coverage"],
+                    ["variants_mosdepth-median_coverage"],
                 ),
                 (
                     "% Coverage > 1x",
-                    ["VARIANTS: mosdepth_mqc-generalstats-variants_mosdepth-1_x_pc"],
+                    ["variants_mosdepth-1_x_pc"],
                 ),
                 (
                     "% Coverage > 10x",
-                    ["VARIANTS: mosdepth_mqc-generalstats-variants_mosdepth-10_x_pc"],
+                    ["variants_mosdepth-10_x_pc"],
                 ),
             ],
+        ),
+        (
+            "samtools-coverage-table.yaml",
+            [
+                (
+                    "Mean depth",
+                    ["Mean depth"]
+                ),
+                (
+                    "% Coverage (bam)",
+                    ["Coverage"]
+                )
+            ]
+        ),
+        (
+            "multiqc_nextclade_clade.yaml",
+            [
+                ("% Coverage (fasta)", ["coverage"])
+            ]
         ),
         (
             "multiqc_bcftools_stats.yaml",
@@ -221,17 +272,16 @@ def main(args=None):
         ),
         (
             "multiqc_snpeff.yaml",
-            [("# Missense variants", ["MISSENSE"])],
+            [
+                ("# Missense variants", ["MISSENSE"])
+            ],
         ),
         (
             "multiqc_quast_quast_variants.yaml",
-            [("# Ns per 100kb consensus", ["# N's per 100 kbp"])],
-        ),
-        (
-            "multiqc_pangolin.yaml",
-            [("Pangolin lineage", ["lineage"])],
-        ),
-        ("multiqc_nextclade_clade-plot.yaml", [("Nextclade clade", ["clade"])]),
+            [
+                ("# Ns per 100kb consensus", ["# N's per 100 kbp"])
+            ],
+        )
     ]
 
     illumina_assembly_files = [
@@ -298,7 +348,7 @@ def main(args=None):
         ("multiqc_snpeff.yaml", [("# Missense variants", ["MISSENSE"])]),
         ("multiqc_quast.yaml", [("# Ns per 100kb consensus", ["# N's per 100 kbp"])]),
         ("multiqc_pangolin.yaml", [("Pangolin lineage", ["lineage"])]),
-        ("multiqc_nextclade_clade-plot.yaml", [("Nextclade clade", ["clade"])]),
+        ("multiqc_nextclade_clade.yaml", [("Nextclade clade", ["clade"])]),
     ]
 
     if args.PLATFORM == "illumina":
