@@ -40,6 +40,7 @@ workflow FASTQ_ALIGN_BOWTIE2 {
     stats            = BAM_SORT_STATS_SAMTOOLS.out.stats    // channel: [ val(meta), [ stats ] ]
     flagstat         = BAM_SORT_STATS_SAMTOOLS.out.flagstat // channel: [ val(meta), [ flagstat ] ]
     idxstats         = BAM_SORT_STATS_SAMTOOLS.out.idxstats // channel: [ val(meta), [ idxstats ] ]
+    coverage         = BAM_SORT_STATS_SAMTOOLS.out.coverage // channel: [ val(meta), [ coverage ] ]
 
     versions         = ch_versions                      // channel: [ versions.yml ]
 }
