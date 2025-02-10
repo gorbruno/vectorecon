@@ -133,19 +133,19 @@ class WorkflowCommons {
     }
 
     //
-    // Function to read in all fields into a Groovy Map from Nextclade CSV output file
+    // Function to read in all fields into a Groovy Map from table file (default table format — CSV)
     //
     // See: https://stackoverflow.com/a/67766919
-    public static Map getNextcladeFieldMapFromCsv(nextclade_report) {
+    public static Map getFieldMapFromTable(report, String separator = ",") {
         def headers   = []
         def field_map = [:]
-        nextclade_report.readLines().eachWithIndex { row, row_index ->
-            def vals = row.split(';')
+        report.readLines().eachWithIndex { row, row_index ->
+            def vals = row.split(separator, -1)
             if (row_index == 0) {
                 headers = vals
             } else {
-                def cells = headers.eachWithIndex { header, header_index ->
-                    def val = (header_index <= vals.size()-1) ? vals[header_index] : ''
+                headers.eachWithIndex { header, header_index ->
+                    def val = (header_index < vals.size()) ? vals[header_index] : ''
                     field_map[header] = val ?: 'NA'
                 }
             }
