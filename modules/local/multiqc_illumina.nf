@@ -1,7 +1,7 @@
 process MULTIQC {
     label 'process_medium'
 
-    conda "bioconda::multiqc=1.14"
+    conda "bioconda::multiqc=1.27"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.14--pyhdfd78af_0' :
         'quay.io/biocontainers/multiqc:1.14--pyhdfd78af_0' }"
@@ -19,6 +19,9 @@ process MULTIQC {
     path ('kraken2/*')
     path ('bowtie2/*')
     path ('bowtie2/*')
+    path ('bowtie2/*')
+    path ('ivar_trim/*')
+    path ('ivar_trim/*')
     path ('ivar_trim/*')
     path ('picard_markduplicates/*')
     path ('mosdepth/*')
@@ -63,10 +66,14 @@ process MULTIQC {
         rm -f *variants_metrics_mqc.csv
     fi
 
-    rm -f variants/report.tsv
+    mkdir ignore
+
+    mv variants/report.tsv ignore
+    mv variants/nextclade_clade_mqc.tsv ignore
+    mv ivar_trim/ivar_trim_primer_statistics_mqc.tsv ignore
 
     ## Run MultiQC a second time
-    multiqc -f $args -e general_stats --ignore nextclade_clade_mqc.tsv $custom_config .
+    multiqc -f $args -e general_stats --ignore "ignore/*" $custom_config .
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
