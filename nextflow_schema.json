@@ -362,10 +362,30 @@
                     "fa_icon": "fas fa-fast-forward",
                     "description": "Skip the initial read trimming step peformed by fastp."
                 },
+                "fastp_trim_poly_x": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": "Fastp option to trim poly x at the beginning/end of sequence."
+                },
+                "fastp_cut_mean_quality": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": "Fastp option of the mean quality requirement shared by cut_front, cut_tail or cut_sliding."
+                },
+                "fastp_length_required": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": "Reads shorter than length_required will be discarded by fastp."
+                },
+                "fastp_length_limit": {
+                    "type": "integer",
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": "Reads longer than length_limit will be discarded by fastp,  default 0 means no limitation."
+                },
                 "skip_cutadapt": {
                     "type": "boolean",
-                    "description": "Skip the amplicon trimming step with Cutadapt when using --protocol amplicon.",
-                    "fa_icon": "fas fa-fast-forward"
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": "Skip the amplicon trimming step with Cutadapt when using --protocol amplicon."
                 }
             },
             "fa_icon": "fas fa-cut"
