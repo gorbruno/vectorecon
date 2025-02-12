@@ -365,22 +365,22 @@
                 "fastp_trim_poly_x": {
                     "type": "boolean",
                     "fa_icon": "fas fa-fast-forward",
-                    "description": "Fastp option to trim poly x at the beginning/end of sequence."
+                    "description": "Fastp option to trim poly x at the beginning/end of sequence (default: true)."
                 },
                 "fastp_cut_mean_quality": {
                     "type": "integer",
                     "fa_icon": "fas fa-fast-forward",
-                    "description": "Fastp option of the mean quality requirement shared by cut_front, cut_tail or cut_sliding."
+                    "description": "Fastp option of the mean quality requirement shared by cut_front, cut_tail or cut_sliding (default: 20)."
                 },
                 "fastp_length_required": {
                     "type": "integer",
                     "fa_icon": "fas fa-fast-forward",
-                    "description": "Reads shorter than length_required will be discarded by fastp."
+                    "description": "Reads shorter than length_required will be discarded by fastp (default: 30)."
                 },
                 "fastp_length_limit": {
                     "type": "integer",
                     "fa_icon": "fas fa-fast-forward",
-                    "description": "Reads longer than length_limit will be discarded by fastp,  default 0 means no limitation."
+                    "description": "Reads longer than length_limit will be discarded by fastp,  default 0 means no limitation (default: 0)."
                 },
                 "skip_cutadapt": {
                     "type": "boolean",
@@ -408,6 +408,12 @@
                     "fa_icon": "fas fa-phone-volume",
                     "description": "Specify which consensus calling algorithm you would like to use. Available options are 'bcftools' and 'ivar' (default: 'bcftools').",
                     "enum": ["ivar", "bcftools"]
+                },
+                "min_consensus_depth": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimum number of consensus depth (default: 10)",
+                    "fa_icon": "fas fa-hand-paper"
                 },
                 "min_mapped_reads": {
                     "type": "integer",
