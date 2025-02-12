@@ -2,9 +2,11 @@
 
 import os
 import sys
+import csv
+import yaml
 import errno
 import argparse
-import yaml
+import openpyxl
 
 
 def parse_args(args=None):
@@ -36,6 +38,13 @@ def parse_args(args=None):
         dest="OUT_PREFIX",
         default="summary",
         help="Full path to output prefix (default: 'summary').",
+    )
+    parser.add_argument(
+        "--excel",
+        action="store_true",
+        dest="EXCEL",
+        default=False,
+        help="Duplicate custom table with excel (default: false).",
     )
     
     return parser.parse_args(args)
@@ -133,7 +142,7 @@ def yaml_fields_to_dict(yaml_file, append_dict={}, field_mapping_list=[], valid_
     return append_dict
 
 
-def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_sample_list=[]):
+def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_sample_list=[], excel=False):
     metrics_dict = {}
     field_list = []
     for yaml_file, mapping_list in file_field_list:
@@ -163,6 +172,16 @@ def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_samp
                     row_list.append("NA")
             fout.write("{}\n".format(",".join(row_list)))
         fout.close()
+
+    ## Save excel table
+    if excel:
+        wb = openpyxl.Workbook()
+        with open(out_file, newline='') as csv_input:
+            ws = wb.active
+            for row in csv.reader(csv_input, delimiter=','):
+                ws.append(row)
+        
+        wb.save(out_file.replace("csv", "xlsx"))
 
     return metrics_dict
 
@@ -374,6 +393,7 @@ def main(args=None):
             multiqc_data_dir=args.MULTIQC_DATA_DIR,
             out_file=args.OUT_PREFIX + "_variants_metrics_mqc.csv",
             valid_sample_list=is_pe_dict.keys(),
+            excel=args.EXCEL
         )
 
         ## Write de novo assembly metrics to file
@@ -382,6 +402,7 @@ def main(args=None):
             multiqc_data_dir=args.MULTIQC_DATA_DIR,
             out_file=args.OUT_PREFIX + "_assembly_metrics_mqc.csv",
             valid_sample_list=is_pe_dict.keys(),
+            excel=args.EXCEL
         )
 
     elif args.PLATFORM == "nanopore":
@@ -402,6 +423,7 @@ def main(args=None):
             multiqc_data_dir=args.MULTIQC_DATA_DIR,
             out_file=args.OUT_PREFIX + "_variants_metrics_mqc.csv",
             valid_sample_list=sample_list,
+            excel=args.EXCEL
         )
 
     else:

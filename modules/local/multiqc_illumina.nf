@@ -1,7 +1,7 @@
 process MULTIQC {
     label 'process_medium'
 
-    conda "bioconda::multiqc=1.27"
+    conda "bioconda::multiqc=1.27 conda-forge::openpyxl=3.1.5"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.14--pyhdfd78af_0' :
         'quay.io/biocontainers/multiqc:1.14--pyhdfd78af_0' }"
@@ -37,25 +37,28 @@ process MULTIQC {
     path ('assembly_minia/*')
 
     output:
-    path "*multiqc_report.html"     , emit: report
-    path "*_data"                   , emit: data
-    path "*variants_metrics_mqc.csv", optional:true, emit: csv_variants
-    path "*assembly_metrics_mqc.csv", optional:true, emit: csv_assembly
-    path "*_plots"                  , optional:true, emit: plots
-    path "versions.yml"             , emit: versions
+    path "*multiqc_report.html"      , emit: report
+    path "*_data"                    , emit: data
+    path "*variants_metrics_mqc.csv" , optional:true, emit: csv_variants
+    path "*assembly_metrics_mqc.csv" , optional:true, emit: csv_assembly
+    path "*variants_metrics_mqc.xlsx", optional:true, emit: excel_variants
+    path "*assembly_metrics_mqc.xlsx", optional:true, emit: excel_assembly
+    path "*_plots"                   , optional:true, emit: plots
+    path "versions.yml"              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: ''
     def custom_config = multiqc_custom_config ? "--config $multiqc_custom_config" : ''
     """
     ## Run MultiQC once to parse tool logs
     multiqc -f $args $custom_config .
 
     ## Parse YAML files dumped by MultiQC to obtain metrics
-    multiqc_to_custom_csv.py --platform illumina
+    multiqc_to_custom_csv.py --platform illumina $args2
 
     ## Manually remove files that we don't want in the report
     if grep -q ">skip_assembly<" workflow_summary_mqc.yaml; then

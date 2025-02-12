@@ -307,6 +307,11 @@
                     "type": "boolean",
                     "fa_icon": "fas fa-fast-forward",
                     "description": "Skip MultiQC."
+                },
+                "save_excel": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": "Duplicate output tables in excel format (default: false)"
                 }
             },
             "fa_icon": "fas fa-retweet"

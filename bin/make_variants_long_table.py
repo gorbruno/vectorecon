@@ -72,6 +72,12 @@ def parser_args(args=None):
         help="Full path to output file (default: 'variants_long_table.csv').",
     )
     parser.add_argument(
+        "--excel",
+        action="store_true",
+        default=False,
+        help="Create corresponding excel table"
+    )
+    parser.add_argument(
         "-vc", "--variant_caller", type=str, default="ivar", help="Tool used to call the variants (default: 'ivar')."
     )
     return parser.parse_args(args)
@@ -319,6 +325,9 @@ def main(args=None):
     if sample_tables:
         merged_tables = pd.concat(sample_tables)
         merged_tables.to_csv(args.output_file, index=False, encoding="utf-8-sig")
+        if args.excel:
+            excel_name = args.output_file.replace("csv", "xlsx")
+            merged_tables.to_excel(excel_name, index=False)
 
 
 if __name__ == "__main__":
