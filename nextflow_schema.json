@@ -276,7 +276,12 @@
                 "skip_mosdepth": {
                     "type": "boolean",
                     "fa_icon": "fas fa-fast-forward",
-                    "description": "Skip genome-wide and amplicon coverage plot generation from mosdepth output."
+                    "description": "Skip genome-wide and amplicon coverage by mosdepth."
+                },
+                "skip_coverage_plots": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-fast-forward",
+                    "description": "Skip coverage plot generation from mosdepth output."
                 },
                 "skip_pangolin": {
                     "type": "boolean",
