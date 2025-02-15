@@ -58,6 +58,16 @@ class WorkflowCommons {
     }
 
     //
+    // Check and if needed create consensus merged outname 
+    //
+    public static String checkOutname(String outname) {
+        if (outname == null || outname.trim().isEmpty()) {
+            return "merged"
+        }
+        return outname.trim()
+    }
+    
+    //
     // Function to check whether primer BED file has the correct suffixes as provided to the pipeline
     //
     public static void checkPrimerSuffixes(primer_bed_file, primer_left_suffix, primer_right_suffix, log) {
