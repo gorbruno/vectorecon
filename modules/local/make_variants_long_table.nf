@@ -9,11 +9,13 @@ process MAKE_VARIANTS_LONG_TABLE {
     path ('bcftools_query/*')
     path ('snpsift/*')
     path ('pangolin/*')
+    val  outname
 
     output:
     path "*.csv"       , emit: csv
     path "*.xlsx"      , optional: true, emit: excel
     path "versions.yml", emit: versions
+    path "outname.txt" , emit: outname
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,6 +28,8 @@ process MAKE_VARIANTS_LONG_TABLE {
         --snpsift_dir ./snpsift \\
         --pangolin_dir ./pangolin \\
         $args
+
+    echo $outname > outname.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

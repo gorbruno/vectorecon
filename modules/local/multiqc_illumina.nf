@@ -9,6 +9,7 @@ process MULTIQC {
     input:
     path 'multiqc_config.yaml'
     path multiqc_custom_config
+    path outname
     path software_versions
     path workflow_summary
     path fail_reads_summary
@@ -44,6 +45,7 @@ process MULTIQC {
     path "*variants_metrics_mqc.xlsx", optional:true, emit: excel_variants
     path "*assembly_metrics_mqc.xlsx", optional:true, emit: excel_assembly
     path "*_plots"                   , optional:true, emit: plots
+    path "outname.txt"               , emit: outname_mqc
     path "versions.yml"              , emit: versions
 
     when:
@@ -62,11 +64,11 @@ process MULTIQC {
 
     ## Manually remove files that we don't want in the report
     if grep -q ">skip_assembly<" workflow_summary_mqc.yaml; then
-        rm -f *assembly_metrics_mqc.csv
+        rm -f *assembly_metrics_mqc*
     fi
 
     if grep -q ">skip_variants<" workflow_summary_mqc.yaml; then
-        rm -f *variants_metrics_mqc.csv
+        rm -f *variants_metrics_mqc*
     fi
 
     mkdir ignore

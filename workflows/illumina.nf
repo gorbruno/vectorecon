@@ -501,6 +501,7 @@ workflow ILLUMINA {
         )
 
         ch_quast_multiqc    = CONSENSUS_BCFTOOLS.out.quast_tsv
+        ch_outname          = CONSENSUS_BCFTOOLS.out.consensus_outname
         ch_pangolin_multiqc = CONSENSUS_BCFTOOLS.out.pangolin_report
         ch_nextclade_report = CONSENSUS_BCFTOOLS.out.nextclade_report
         ch_versions         = ch_versions.mix(CONSENSUS_BCFTOOLS.out.versions)
@@ -557,9 +558,11 @@ workflow ILLUMINA {
             ch_vcf,
             ch_tbi,
             ch_snpsift_txt,
-            ch_pangolin_multiqc
+            ch_pangolin_multiqc,
+            ch_outname
         )
-        ch_versions = ch_versions.mix(VARIANTS_LONG_TABLE.out.versions)
+        ch_versions        = ch_versions.mix(VARIANTS_LONG_TABLE.out.versions)
+        ch_outname_multiqc = VARIANTS_LONG_TABLE.out.outname
     }
 
     //
@@ -650,6 +653,7 @@ workflow ILLUMINA {
         MULTIQC (
             ch_multiqc_config,
             ch_multiqc_custom_config,
+            ch_outname_multiqc,
             CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect(),
             ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'),
             ch_fail_reads_multiqc.collectFile(name: 'fail_mapped_reads_mqc.tsv').ifEmpty([]),

@@ -93,17 +93,18 @@ workflow CONSENSUS_BCFTOOLS {
     ch_versions = ch_versions.mix(CONSENSUS_QC.out.versions.first())
 
     emit:
-    consensus        = CONSENSUS_PRETTIFY.out.fasta      // channel: [ val(meta), [ fasta ] ]
+    consensus         = CONSENSUS_PRETTIFY.out.fasta      // channel: [ val(meta), [ fasta ] ]
+    consensus_outname = CONSENSUS_PRETTIFY.out.outname    // channel: [ val outname ]
 
-    quast_results    = CONSENSUS_QC.out.quast_results    // channel: [ val(meta), [ results ] ]
-    quast_tsv        = CONSENSUS_QC.out.quast_tsv        // channel: [ val(meta), [ tsv ] ]
+    quast_results     = CONSENSUS_QC.out.quast_results    // channel: [ val(meta), [ results ] ]
+    quast_tsv         = CONSENSUS_QC.out.quast_tsv        // channel: [ val(meta), [ tsv ] ]
 
-    pangolin_report  = CONSENSUS_QC.out.pangolin_report  // channel: [ val(meta), [ csv ] ]
+    pangolin_report   = CONSENSUS_QC.out.pangolin_report  // channel: [ val(meta), [ csv ] ]
 
-    nextclade_report = CONSENSUS_QC.out.nextclade_report // channel: [ val(meta), [ csv ] ]
+    nextclade_report  = CONSENSUS_QC.out.nextclade_report // channel: [ val(meta), [ csv ] ]
 
-    bases_tsv        = CONSENSUS_QC.out.bases_tsv        // channel: [ val(meta), [ tsv ] ]
-    bases_pdf        = CONSENSUS_QC.out.bases_pdf        // channel: [ val(meta), [ pdf ] ]
+    bases_tsv         = CONSENSUS_QC.out.bases_tsv        // channel: [ val(meta), [ tsv ] ]
+    bases_pdf         = CONSENSUS_QC.out.bases_pdf        // channel: [ val(meta), [ pdf ] ]
 
-    versions         = ch_versions                       // channel: [ versions.yml ]
+    versions          = ch_versions                       // channel: [ versions.yml ]
 }

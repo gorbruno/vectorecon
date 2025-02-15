@@ -11,6 +11,7 @@ workflow VARIANTS_LONG_TABLE {
     tbi      // channel: [ val(meta), [ tbi ] ]
     snpsift  // channel: [ val(meta), [ txt ] ]
     pangolin // channel: [ val(meta), [ csv ] ]
+    outname  // channel: [ val outname ]
 
     main:
 
@@ -27,13 +28,15 @@ workflow VARIANTS_LONG_TABLE {
     MAKE_VARIANTS_LONG_TABLE (
         BCFTOOLS_QUERY.out.txt.collect{it[1]},
         snpsift.collect{it[1]}.ifEmpty([]),
-        pangolin.collect{it[1]}.ifEmpty([])
+        pangolin.collect{it[1]}.ifEmpty([]),
+        outname
     )
     ch_versions = ch_versions.mix(MAKE_VARIANTS_LONG_TABLE.out.versions)
 
     emit:
-    query_table = BCFTOOLS_QUERY.out.txt           // channel: [ val(meta), [ txt ] ]
-    long_table  = MAKE_VARIANTS_LONG_TABLE.out.csv // channel: [ val(meta), [ csv ] ]
+    query_table = BCFTOOLS_QUERY.out.txt               // channel: [ val(meta), [ txt ] ]
+    long_table  = MAKE_VARIANTS_LONG_TABLE.out.csv     // channel: [ val(meta), [ csv ] ]
+    outname     = MAKE_VARIANTS_LONG_TABLE.out.outname // channel: [ path outname ]
 
     versions    = ch_versions    // channel: [ versions.yml ]
 }
