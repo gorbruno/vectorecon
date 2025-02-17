@@ -1,7 +1,7 @@
 process MULTIQC {
     label 'process_medium'
 
-    conda "bioconda::multiqc=1.27 conda-forge::openpyxl=3.1.5"
+    conda "bioconda::multiqc=1.27 conda-forge::pandas=2.2.3 conda-forge::xlsxwriter=3.2.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.14--pyhdfd78af_0' :
         'quay.io/biocontainers/multiqc:1.14--pyhdfd78af_0' }"
@@ -9,7 +9,7 @@ process MULTIQC {
     input:
     path 'multiqc_config.yaml'
     path multiqc_custom_config
-    path outname
+    val  outname
     path software_versions
     path workflow_summary
     path fail_reads_summary
@@ -38,14 +38,11 @@ process MULTIQC {
     path ('assembly_minia/*')
 
     output:
-    path "*multiqc_report.html"      , emit: report
+    path "*.html"                    , emit: report
     path "*_data"                    , emit: data
-    path "*variants_metrics_mqc.csv" , optional:true, emit: csv_variants
-    path "*assembly_metrics_mqc.csv" , optional:true, emit: csv_assembly
-    path "*variants_metrics_mqc.xlsx", optional:true, emit: excel_variants
-    path "*assembly_metrics_mqc.xlsx", optional:true, emit: excel_assembly
+    path "*.csv"                     , optional:true, emit: csv_variants
+    path "*.xlsx"                    , optional:true, emit: excel_variants
     path "*_plots"                   , optional:true, emit: plots
-    path "outname.txt"               , emit: outname_mqc
     path "versions.yml"              , emit: versions
 
     when:
@@ -79,6 +76,13 @@ process MULTIQC {
 
     ## Run MultiQC a second time
     multiqc -f $args -e general_stats --ignore "ignore/*" $custom_config .
+
+    if [[ $outname != "merged" ]]; then
+      # find . -name "*metrics_mqc.*" -exec sh -c 'mv \$1 ${outname}.metrics.\${1##*.}' rename {} \; TODO
+      mv *metrics_mqc.csv ${outname}.metrics.csv
+      mv *metrics_mqc.xlsx ${outname}.metrics.xlsx # may fail :)
+      mv multiqc_report.html ${outname}.multiqc.html
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

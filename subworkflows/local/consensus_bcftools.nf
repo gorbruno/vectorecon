@@ -73,7 +73,7 @@ workflow CONSENSUS_BCFTOOLS {
     ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions.first())
 
     //
-    // Prettify consensus with optional terminal Ns trimming, merging and renaming headers
+    // Prettify consensus with optional terminal Ns cleaning, merging and renaming headers
     //
     CONSENSUS_PRETTIFY (
         BCFTOOLS_CONSENSUS.out.fasta

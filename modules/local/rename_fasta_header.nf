@@ -22,10 +22,10 @@ process RENAME_FASTA_HEADER {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     outname=\$(rename_fasta_header.sh $args --dry)
+    echo \${outname} > outname.txt
+    outname="\${outname}."
 
-    rename_fasta_header.sh --fasta $fasta --name ${meta.id} --out ${prefix}.fa $args
-
-    echo \$outname > outname.txt
+    rename_fasta_header.sh --fasta $fasta --name ${meta.id} --out \${outname}${prefix}.fa $args
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

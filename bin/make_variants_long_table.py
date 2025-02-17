@@ -9,6 +9,7 @@ import logging
 import argparse
 import pandas as pd
 from matplotlib import table
+from utils import save_excel
 
 
 logger = logging.getLogger()
@@ -327,7 +328,7 @@ def main(args=None):
         merged_tables.to_csv(args.output_file, index=False, encoding="utf-8-sig")
         if args.excel:
             excel_name = args.output_file.replace("csv", "xlsx")
-            merged_tables.to_excel(excel_name, index=False)
+            save_excel(merged_tables, excel_name)
 
 
 if __name__ == "__main__":

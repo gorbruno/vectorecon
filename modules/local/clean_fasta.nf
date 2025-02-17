@@ -1,4 +1,4 @@
-process TRIM_FASTA {
+process CLEAN_FASTA {
     tag "$meta.id"
 
     conda "conda-forge::sed=4.8 bioconda::seqkit=2.9.0"
@@ -10,7 +10,7 @@ process TRIM_FASTA {
     tuple val(meta), path(fasta)
 
     output:
-    tuple val(meta), path("*.trimmed.fa"), emit: fasta
+    tuple val(meta), path("*.cleaned.fa"), emit: fasta
     path "versions.yml"                  , emit: versions
 
     when:
@@ -20,7 +20,7 @@ process TRIM_FASTA {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    seqkit -is replace -p "^n+|n+\$" -r "" $args $fasta > ${prefix}.trimmed.fa
+    seqkit -is replace -p "^n+|n+\$" -r "" $args $fasta > ${prefix}.cleaned.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

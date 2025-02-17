@@ -1,6 +1,6 @@
 process MAKE_VARIANTS_LONG_TABLE {
 
-    conda "conda-forge::python=3.12.8 conda-forge::matplotlib=3.10.0 conda-forge::pandas=2.2.3 conda-forge::r-sys=3.4.3 conda-forge::regex=2024.11.6 conda-forge::scipy=1.15.1 conda-forge::openpyxl=3.1.5"
+    conda "conda-forge::python=3.12.8 conda-forge::matplotlib=3.10.0 conda-forge::pandas=2.2.3 conda-forge::r-sys=3.4.3 conda-forge::regex=2024.11.6 conda-forge::scipy=1.15.1 conda-forge::xlsxwriter=3.2.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-77320db00eefbbf8c599692102c3d387a37ef02a:08144a66f00dc7684fad061f1466033c0176e7ad-0' :
         'quay.io/biocontainers/mulled-v2-77320db00eefbbf8c599692102c3d387a37ef02a:08144a66f00dc7684fad061f1466033c0176e7ad-0' }"
@@ -15,7 +15,6 @@ process MAKE_VARIANTS_LONG_TABLE {
     path "*.csv"       , emit: csv
     path "*.xlsx"      , optional: true, emit: excel
     path "versions.yml", emit: versions
-    path "outname.txt" , emit: outname
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,7 +28,11 @@ process MAKE_VARIANTS_LONG_TABLE {
         --pangolin_dir ./pangolin \\
         $args
 
-    echo $outname > outname.txt
+    if [[ $outname != "merged" ]]; then
+      # find . -name "variants_long_table.*" -exec sh -c "mv \$1 ${outname}.variants.\${1##*.}" rename {} \; TODO
+      mv variants_long_table.csv ${outname}.variants.csv
+      mv variants_long_table.xlsx ${outname}.variants.xlsx #may fail
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

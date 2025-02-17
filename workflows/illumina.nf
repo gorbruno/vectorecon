@@ -562,7 +562,6 @@ workflow ILLUMINA {
             ch_outname
         )
         ch_versions        = ch_versions.mix(VARIANTS_LONG_TABLE.out.versions)
-        ch_outname_multiqc = VARIANTS_LONG_TABLE.out.outname
     }
 
     //
@@ -653,7 +652,7 @@ workflow ILLUMINA {
         MULTIQC (
             ch_multiqc_config,
             ch_multiqc_custom_config,
-            ch_outname_multiqc,
+            ch_outname,
             CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect(),
             ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'),
             ch_fail_reads_multiqc.collectFile(name: 'fail_mapped_reads_mqc.tsv').ifEmpty([]),

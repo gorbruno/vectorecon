@@ -9,7 +9,7 @@ process MERGE_FASTA {
     input:
     path consensus
     val outname
-    val is_trimmed
+    val is_cleaned
 
     output:
     path '*.all.fa'     , emit: fasta
@@ -21,7 +21,7 @@ process MERGE_FASTA {
     script:
     def args = task.ext.args   ?: ''
     def prefix = task.ext.prefix ?: 'consensus'
-    def outname_full = "${outname}.${prefix}.${is_trimmed ? 'trimmed.' : ''}all.fa"
+    def outname_full = "${outname}.${prefix}.${is_cleaned ? 'cleaned.' : ''}all.fa"
     """
     cat ${consensus.join(' ')} > $outname_full
 

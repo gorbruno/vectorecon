@@ -2,11 +2,11 @@
 
 import os
 import sys
-import csv
 import yaml
 import errno
 import argparse
-import openpyxl
+import pandas as pd
+from utils import save_excel
 
 
 def parse_args(args=None):
@@ -175,14 +175,9 @@ def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_samp
 
     ## Save excel table
     if excel:
-        wb = openpyxl.Workbook()
-        with open(out_file, newline='') as csv_input:
-            ws = wb.active
-            for row in csv.reader(csv_input, delimiter=','):
-                ws.append(row)
-        
-        wb.save(out_file.replace("csv", "xlsx"))
-
+        df = pd.read_csv(out_file)
+        save_excel(df, out_file.replace("csv", "xlsx"))
+    
     return metrics_dict
 
 def main(args=None):
@@ -298,7 +293,7 @@ def main(args=None):
         (
             "multiqc_quast_quast_variants.yaml",
             [
-                ("# Ns per 100kb consensus", ["# N's per 100 kbp"])
+                ("# Ns per 100kb consensus", ["# N''s per 100 kbp"]) ## ???
             ],
         )
     ]

@@ -36,7 +36,6 @@ workflow VARIANTS_LONG_TABLE {
     emit:
     query_table = BCFTOOLS_QUERY.out.txt               // channel: [ val(meta), [ txt ] ]
     long_table  = MAKE_VARIANTS_LONG_TABLE.out.csv     // channel: [ val(meta), [ csv ] ]
-    outname     = MAKE_VARIANTS_LONG_TABLE.out.outname // channel: [ path outname ]
 
     versions    = ch_versions    // channel: [ versions.yml ]
 }
