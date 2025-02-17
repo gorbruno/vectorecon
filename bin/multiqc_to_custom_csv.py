@@ -198,7 +198,7 @@ def main(args=None):
             "kraken-top-n-plot_Unclassified.yaml",
             [
                 (
-                    "# Non-host reads", ["Other"],
+                    "# Host reads", ["Other"],
                 )
             ],
         ),

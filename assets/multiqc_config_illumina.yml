@@ -171,8 +171,8 @@ custom_data:
       "Reads reverse":
         description: "Average length of reverse reads after trimming"
         format: "{:,.0f}"
-      "# Non-host reads":
-        description: "Total number of non-host reads identified by Kraken2"
+      "# Host reads":
+        description: "Total number of host reads identified by Kraken2"
         format: "{:,.0f}"
       "# Mapped reads":
         description: "Total number of Bowtie2 mapped reads relative to the reference genome"
