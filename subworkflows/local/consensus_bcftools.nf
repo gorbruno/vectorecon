@@ -80,7 +80,6 @@ workflow CONSENSUS_BCFTOOLS {
     )
     ch_versions = ch_versions.mix(CONSENSUS_PRETTIFY.out.versions.first())
 
-
     //
     // Consensus sequence QC
     //

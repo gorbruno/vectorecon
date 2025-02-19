@@ -515,7 +515,7 @@ workflow ILLUMINA {
         ch_nextclade_report
             .map { meta, csv ->
                 def (clade, clade_name, lineage, coverage) = WorkflowCommons.getFieldMapFromTable(csv, ';').with {
-                            def cov = it['coverage'] ? ((it['coverage'] as BigDecimal) * 100).round(2) : 0
+                            def cov = it['coverage'] && !it['coverage'].toString().trim().isEmpty() ? ((it['coverage'] as BigDecimal) * 100).round(2) : 0
                             [it['clade'], it['clade_who'], it['Nextclade_pango'], cov]
                             }
                 return [ "$meta.id\t$clade\t$clade_name\t$lineage\t$coverage" ]
