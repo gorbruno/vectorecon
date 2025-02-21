@@ -23,7 +23,10 @@ process RENAME_FASTA_HEADER {
     """
     outname=\$(rename_fasta_header.sh $args --dry)
     echo \${outname} > outname.txt
-    outname="\${outname}."
+
+    if [[ -n \$outname ]]; then
+      outname="\${outname}."
+    fi
 
     rename_fasta_header.sh --fasta $fasta --name ${meta.id} --out \${outname}${prefix}.fa $args
 

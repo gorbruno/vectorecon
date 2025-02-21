@@ -1,7 +1,7 @@
 process MULTIQC {
     label 'process_medium'
 
-    conda "bioconda::multiqc=1.27 conda-forge::pandas=2.2.3 conda-forge::xlsxwriter=3.2.2"
+    conda "bioconda::multiqc=1.27 conda-forge::pandas=2.2.3 conda-forge::xlsxwriter=3.2.2 conda-forge::ruamel.yaml=0.18.10"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.14--pyhdfd78af_0' :
         'quay.io/biocontainers/multiqc:1.14--pyhdfd78af_0' }"

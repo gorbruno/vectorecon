@@ -165,10 +165,10 @@ custom_data:
       "# Trimmed reads":
         description: "Total number of reads remaining after adapter/quality trimming with fastp"
         format: "{:,.0f}"
-      "Reads forward":
+      "Avg. length reads forward":
         description: "Average length of forward reads after trimming"
         format: "{:,.0f}"
-      "Reads reverse":
+      "Avg. length reads reverse":
         description: "Average length of reverse reads after trimming"
         format: "{:,.0f}"
       "# Host reads":

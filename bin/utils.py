@@ -5,7 +5,7 @@ def save_excel(df: pd.DataFrame, outname: str = "final.table", skip_adjust: list
     sheetname: str = "Sheet1"
 
     writer = pd.ExcelWriter(outname, engine='xlsxwriter')
-    df.to_excel(writer, index=False, sheet_name=sheetname)
+    df.to_excel(writer, index=False, sheet_name=sheetname, na_rep='NA')
     worksheet = writer.sheets[sheetname]  # pull worksheet object
 
     # Adjust columnss

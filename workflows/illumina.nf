@@ -515,7 +515,11 @@ workflow ILLUMINA {
         ch_nextclade_report
             .map { meta, csv ->
                 def (clade, clade_name, lineage, coverage) = WorkflowCommons.getFieldMapFromTable(csv, ';').with {
-                            def cov = it['coverage'] && !it['coverage'].toString().trim().isEmpty() ? ((it['coverage'] as BigDecimal) * 100).round(2) : 0
+                            // def clade = it['clade'] != 'NA'? it['clade']: 0
+                            // def clade_who = it['clade_who'] != 'NA'? it['clade_who']: 0
+                            // def pango = it['Nextclade_pango'] != 'NA'? it['Nextclade_pango']: 0
+                            def cov = it['coverage'] && !it['coverage'].toString().trim().isEmpty() && it['coverage'] != 'NA'? ((it['coverage'] as BigDecimal) * 100).round(2) : 0
+                            // [clade, clade_who, pango, cov]
                             [it['clade'], it['clade_who'], it['Nextclade_pango'], cov]
                             }
                 return [ "$meta.id\t$clade\t$clade_name\t$lineage\t$coverage" ]
@@ -523,7 +527,7 @@ workflow ILLUMINA {
             .collect()
             .map {
                 tsv_data ->
-                    def header = ['Sample', 'clade', 'clade_name', 'lineage', 'coverage']
+                    def header = ['Sample', 'clade', 'clade_name', 'lineage', 'coverage_fasta']
                     WorkflowCommons.multiqcTsvFromList(tsv_data, header)
             }
             .set { ch_nextclade_multiqc }

@@ -2,11 +2,11 @@
 
 import os
 import sys
-import yaml
 import errno
 import argparse
 import pandas as pd
 from utils import save_excel
+from ruamel.yaml import YAML
 
 
 def parse_args(args=None):
@@ -79,9 +79,10 @@ def yaml_fields_to_dict(yaml_file, append_dict={}, field_mapping_list=[], valid_
         "# contigs (>= 5000 bp)",
         "Largest contig",
     ]
+    yaml = YAML(typ='safe')
     if os.path.exists(yaml_file):
         with open(yaml_file) as f:
-            yaml_dict = yaml.safe_load(f)
+            yaml_dict = yaml.load(f)
             for k in yaml_dict.keys():
                 key = k
                 if os.path.basename(yaml_file).startswith("multiqc_picard_insertSize"):
@@ -146,14 +147,14 @@ def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_samp
     metrics_dict = {}
     field_list = []
     for yaml_file, mapping_list in file_field_list:
-        yaml_file = os.path.join(multiqc_data_dir, yaml_file)
-        metrics_dict = yaml_fields_to_dict(
-            yaml_file=yaml_file,
-            append_dict=metrics_dict,
-            field_mapping_list=mapping_list,
-            valid_sample_list=valid_sample_list,
-        )
-        field_list += [x[0] for x in mapping_list]
+            yaml_file = os.path.join(multiqc_data_dir, yaml_file)
+            metrics_dict = yaml_fields_to_dict(
+                yaml_file=yaml_file,
+                append_dict=metrics_dict,
+                field_mapping_list=mapping_list,
+                valid_sample_list=valid_sample_list,
+            )
+            field_list += [x[0] for x in mapping_list]
 
     if metrics_dict != {}:
         make_dir(os.path.dirname(out_file))
@@ -167,9 +168,10 @@ def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_samp
                     if metrics_dict[k][field]:
                         row_list.append(str(metrics_dict[k][field]).replace(",", ";"))
                     else:
-                        row_list.append("NA")
+                        ## TODO: REWRITE THIS BLASPHEMOUS SCRIPT
+                        row_list.append("NA" if field not in ["% Coverage (fasta)", "# SNPs", "# INDELs", "# Missense variants", "Coverage median", "% Coverage > 1x", "% Coverage > 10x"] else "0")
                 else:
-                    row_list.append("NA")
+                    row_list.append("NA" if field not in ["% Coverage (fasta)", "# SNPs", "# INDELs", "# Missense variants", "Coverage median", "% Coverage > 1x", "% Coverage > 10x"] else "0")
             fout.write("{}\n".format(",".join(row_list)))
         fout.close()
 
@@ -190,8 +192,8 @@ def main(args=None):
             [
                 ("# Input reads", ["before_filtering", "total_reads"]),
                 ("# Trimmed reads", ["after_filtering", "total_reads"]),
-                ("Reads forward", ["after_filtering", "read1_mean_length"]),
-                ("Reads reverse", ["after_filtering", "read2_mean_length"]),
+                ("Avg. length reads forward", ["after_filtering", "read1_mean_length"]),
+                ("Avg. length reads reverse", ["after_filtering", "read2_mean_length"]),
             ],
         ),
         (
@@ -274,7 +276,7 @@ def main(args=None):
         (
             "multiqc_nextclade_clade.yaml",
             [
-                ("% Coverage (fasta)", ["coverage"])
+                ("% Coverage (fasta)", ["coverage_fasta"])
             ]
         ),
         (
@@ -290,12 +292,12 @@ def main(args=None):
                 ("# Missense variants", ["MISSENSE"])
             ],
         ),
-        (
-            "multiqc_quast_quast_variants.yaml",
-            [
-                ("# Ns per 100kb consensus", ["# N''s per 100 kbp"]) ## ???
-            ],
-        )
+        #(
+        #    "multiqc_quast_quast_variants.yaml",
+        #    [
+        #        ("# Ns per 100kb consensus", ["# N''s per 100 kbp"]) ## ???
+        #    ],
+        #)
     ]
 
     illumina_assembly_files = [
