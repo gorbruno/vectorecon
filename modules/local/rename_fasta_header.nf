@@ -1,7 +1,7 @@
 process RENAME_FASTA_HEADER {
     tag "$meta.id"
 
-    conda "conda-forge::sed=4.8"
+    conda "conda-forge::sed=4.8 conda-forge::ripgrep=14.1.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/ubuntu:20.04' :
         'ubuntu:20.04' }"
@@ -33,6 +33,7 @@ process RENAME_FASTA_HEADER {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         sed: \$(echo \$(sed --version 2>&1) | sed 's/^.*GNU sed) //; s/ .*\$//')
+        ripgrep: \$(rg --version |& sed '1!d ; s/ripgrep //')
     END_VERSIONS
     """
 }

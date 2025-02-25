@@ -81,13 +81,11 @@ while test $# -gt 0; do
       shift
       ;;
     --dry)
+      dry=true
       shift
-      if test $# -eq 0; then
-        dry=true
-      else
-        echo "Dry is a boolean flag"
-        exit 0
-      fi
+      ;;
+    --vga)
+      vga=true
       shift
       ;;
     *)
@@ -116,9 +114,16 @@ fi
 # At least not python (kill me)
 if [[ -n $fasta ]]; then
   if [[ -n $name ]]; then
+    if [[ -n $vga ]]; then
+      name=$(echo $name | rg "([A-Za-z]+-)(([A-Z]+)?\d+([A-Z]+)?_S\d+)(_L001)?" -r '$2')
+    fi
 
     if [[ -n $out ]]; then
-      sed "s/>/>${optional_head}${name} /g" $fasta > ${out}
+      if [[ -n $vga ]]; then
+        sed "s/>.*/>${optional_head}${name} /g" $fasta > ${out}
+      else
+        sed "s/>/>${optional_head}${name} /g" $fasta > ${out}
+      fi
     else
       sed "s/>/>${optional_head}${name} /g" $fasta
     fi

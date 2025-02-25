@@ -146,6 +146,11 @@
                     "description": "Agent name to rename consensus fasta files.",
                     "fa_icon": "fas fa-font"
                 },
+                "vga": {
+                    "type": "boolean",
+                    "description": "Rename fastas to certain db type.",
+                    "fa_icon": "fas fa-cut"
+                },
                 "clean_consensus_n": {
                     "type": "boolean",
                     "description": "This option allow to delete all terminal Ns with seqkit.",
