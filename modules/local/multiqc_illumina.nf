@@ -1,7 +1,7 @@
 process MULTIQC {
     label 'process_medium'
 
-    conda "bioconda::multiqc=1.27 conda-forge::pandas=2.2.3 conda-forge::xlsxwriter=3.2.2 conda-forge::ruamel.yaml=0.18.10"
+    conda "bioconda::multiqc=1.27 conda-forge::pandas=2.2.3 conda-forge::xlsxwriter=3.2.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.14--pyhdfd78af_0' :
         'quay.io/biocontainers/multiqc:1.14--pyhdfd78af_0' }"
@@ -72,10 +72,12 @@ process MULTIQC {
 
     mv variants/report.tsv ignore
     mv variants/nextclade_clade_mqc.tsv ignore
+    mv multiqc_data/multiqc_nextclade_clade.yaml ignore
+    mv multiqc_data/multiqc_ivar_trim_primer_statistics.yaml ignore
     mv ivar_trim/ivar_trim_primer_statistics_mqc.tsv ignore
 
     ## Run MultiQC a second time
-    multiqc -f $args -e general_stats --ignore "ignore/*" $custom_config .
+    multiqc -f $args -e general_stats --ignore "./ignore/*" $custom_config .
 
     if [[ $outname != "merged" ]]; then
       # find . -name "*metrics_mqc.*" -exec sh -c 'mv \$1 ${outname}.metrics.\${1##*.}' rename {} \; TODO
@@ -87,6 +89,7 @@ process MULTIQC {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         multiqc: \$( multiqc --version | sed -e "s/multiqc, version //g" )
+        python: \$(python --version | sed 's/Python //g')
     END_VERSIONS
     """
 }
