@@ -32,7 +32,7 @@ workflow ASSEMBLY_MINIA {
     MINIA
         .out
         .contigs
-        .filter { meta, contig -> contig.size() > 0 }
+        .filter { _meta, contig -> contig.size() > 0 }
         .set { ch_contigs }
 
     //

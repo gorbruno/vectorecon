@@ -148,7 +148,7 @@ workflow PREPARE_GENOME {
                 UNTAR_BOWTIE2_INDEX (
                     [ [:], file(params.bowtie2_index) ]
                 )
-                ch_bowtie2_index = UNTAR_BOWTIE2_INDEX.out.untar.map { meta, path -> [[:], path] }
+                ch_bowtie2_index = UNTAR_BOWTIE2_INDEX.out.untar.map { _meta, path -> [[:], path] }
                 ch_versions = ch_versions.mix(UNTAR_BOWTIE2_INDEX.out.versions)
             } else {
                 ch_bowtie2_index = Channel.value([[:], file(params.bowtie2_index)])

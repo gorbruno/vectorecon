@@ -19,7 +19,6 @@ process MERGE_FASTA {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args   ?: ''
     def prefix = task.ext.prefix ?: 'consensus'
     def outname_full = "${outname}.${prefix}.${is_cleaned ? 'cleaned.' : ''}all.fa"
     """

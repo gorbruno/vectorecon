@@ -27,7 +27,7 @@ process IVAR_TRIM_STATS {
     bed_length=\$(wc -l < $bed)
     bed_width=\$(head -1 $bed | wc -w)
 
-    cols=("reference" "start" "end" "name" "score" "strand" "seq")
+    cols=("reference" "start" "end" "name" "score" "strand" $args)
     selected_cols=\$(printf "%s," "\${cols[@]:0:bed_width}" | sed 's/,\$//')
 
     cat $log_file | grep "Primer Name" -A \$bed_length | tail -n +2 | csvtk add-header -t -n "name,count" > ${prefix}.ivar_table.tsv

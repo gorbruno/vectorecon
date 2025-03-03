@@ -30,7 +30,6 @@ process TABIX_TABIX {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${tab}.tbi
     cat <<-END_VERSIONS > versions.yml
