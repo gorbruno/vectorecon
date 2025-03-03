@@ -68,16 +68,16 @@ process MULTIQC {
         rm -f *variants_metrics_mqc*
     fi
 
-    mkdir ignore
+    ## WHY IGNORE DON'T WORK
 
-    mv variants/report.tsv ignore
-    mv variants/nextclade_clade_mqc.tsv ignore
-    mv multiqc_data/multiqc_nextclade_clade.yaml ignore
-    mv multiqc_data/multiqc_ivar_trim_primer_statistics.yaml ignore
-    mv ivar_trim/ivar_trim_primer_statistics_mqc.tsv ignore
+    rm -rf variants/report.tsv ignore
+    rm -rf variants/nextclade_clade_mqc.tsv ignore
+    rm -rf multiqc_data/multiqc_nextclade_clade.yaml ignore
+    rm -rf multiqc_data/multiqc_ivar_trim_primer_statistics.yaml ignore
+    rm -rf ivar_trim/ivar_trim_primer_statistics_mqc.tsv ignore
 
     ## Run MultiQC a second time
-    multiqc -f $args -e general_stats --ignore "./ignore/*" $custom_config .
+    multiqc -f $args -e general_stats $custom_config .
 
     if [[ $outname != "merged" ]]; then
       # find . -name "*metrics_mqc.*" -exec sh -c 'mv \$1 ${outname}.metrics.\${1##*.}' rename {} \; TODO

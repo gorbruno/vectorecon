@@ -4,11 +4,9 @@ import os
 import sys
 import glob
 import errno
-import shutil
 import logging
 import argparse
 import pandas as pd
-from matplotlib import table
 from utils import save_excel
 
 
@@ -76,7 +74,7 @@ def parser_args(args=None):
         "--excel",
         action="store_true",
         default=False,
-        help="Create corresponding excel table"
+        help="Create corresponding excel table."
     )
     parser.add_argument(
         "-vc", "--variant_caller", type=str, default="ivar", help="Tool used to call the variants (default: 'ivar')."
@@ -270,7 +268,7 @@ def main(args=None):
     variant_callers = ["ivar", "bcftools", "nanopolish", "medaka"]
     if args.variant_caller not in variant_callers:
         logger.error(
-            f"Invalid option '--variant caller {args.variant_caller}'. Valid options: " + ", ".join(variant_callers)
+            f"Invalid option '--variant_caller {args.variant_caller}'. Valid options: " + ", ".join(variant_callers)
         )
         sys.exit(1)
 
