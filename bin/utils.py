@@ -18,5 +18,5 @@ def save_excel(df: pd.DataFrame, outname: str = "final.table", skip_adjust: list
 
         if col not in skip_adjust:
             worksheet.set_column(idx, idx, max_len)  # set column width
-    
+
     writer.close()
