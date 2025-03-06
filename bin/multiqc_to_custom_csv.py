@@ -45,7 +45,7 @@ def parse_args(args=None):
         default=False,
         help="Duplicate custom table with excel (default: false).",
     )
-    
+
     return parser.parse_args(args)
 
 
@@ -178,7 +178,7 @@ def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_samp
     if excel:
         df = pd.read_csv(out_file)
         save_excel(df, out_file.replace("csv", "xlsx"))
-    
+
     return metrics_dict
 
 def main(args=None):
@@ -235,8 +235,8 @@ def main(args=None):
             ]
         ),
         (
-            "multiqc_nextclade_clade.yaml", 
-            [   
+            "multiqc_nextclade_clade.yaml",
+            [
                 ("Lineage", ["lineage"]),
                 ("Clade", ["clade"]),
                 ("Clade name", ["clade_name"])
