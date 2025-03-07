@@ -2,20 +2,20 @@
 // Consensus calling with BCFTools and downstream processing QC
 //
 
-include { BCFTOOLS_FILTER     } from '../../modules/nf-core/bcftools/filter/main'
-include { TABIX_TABIX         } from '../../modules/nf-core/tabix/tabix/main'
-include { BEDTOOLS_MERGE      } from '../../modules/nf-core/bedtools/merge/main'
-include { BEDTOOLS_MASKFASTA  } from '../../modules/nf-core/bedtools/maskfasta/main'
-include { BCFTOOLS_CONSENSUS  } from '../../modules/nf-core/bcftools/consensus/main'
-include { MAKE_BED_MASK       } from '../../modules/local/make_bed_mask'
-include { RENAME_FASTA_HEADER } from '../../modules/local/rename_fasta_header'
-include { CONSENSUS_QC        } from './consensus_qc'
+include { BCFTOOLS_FILTER    } from '../../modules/nf-core/bcftools/filter/main'
+include { TABIX_TABIX        } from '../../modules/nf-core/tabix/tabix/main'
+include { BEDTOOLS_MERGE     } from '../../modules/nf-core/bedtools/merge/main'
+include { BEDTOOLS_MASKFASTA } from '../../modules/nf-core/bedtools/maskfasta/main'
+include { BCFTOOLS_CONSENSUS } from '../../modules/nf-core/bcftools/consensus/main'
+include { MAKE_BED_MASK      } from '../../modules/local/make_bed_mask'
+include { CONSENSUS_PRETTIFY } from './consensus_prettify'
+include { CONSENSUS_QC       } from './consensus_qc'
 
 workflow CONSENSUS_BCFTOOLS {
     take:
     bam          // channel: [ val(meta), [ bam ] ]
     vcf          // channel: [ val(meta), [ vcf ] ]
-    tbi          // channel: [ val(meta), [ tbi ] ]
+    _tbi          // channel: [ val(meta), [ tbi ] ]
     fasta        // channel: /path/to/genome.fasta
     gff          // channel: /path/to/genome.gff
     nextclade_db // channel: /path/to/nextclade_db/
@@ -73,18 +73,18 @@ workflow CONSENSUS_BCFTOOLS {
     ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions.first())
 
     //
-    // Rename consensus header adding sample name
+    // Prettify consensus with optional terminal Ns cleaning, merging and renaming headers
     //
-    RENAME_FASTA_HEADER (
+    CONSENSUS_PRETTIFY (
         BCFTOOLS_CONSENSUS.out.fasta
     )
-    ch_versions = ch_versions.mix(RENAME_FASTA_HEADER.out.versions.first())
+    ch_versions = ch_versions.mix(CONSENSUS_PRETTIFY.out.versions.first())
 
     //
     // Consensus sequence QC
     //
     CONSENSUS_QC (
-        RENAME_FASTA_HEADER.out.fasta,
+        CONSENSUS_PRETTIFY.out.fasta,
         fasta,
         gff,
         nextclade_db
@@ -92,17 +92,18 @@ workflow CONSENSUS_BCFTOOLS {
     ch_versions = ch_versions.mix(CONSENSUS_QC.out.versions.first())
 
     emit:
-    consensus        = RENAME_FASTA_HEADER.out.fasta     // channel: [ val(meta), [ fasta ] ]
+    consensus         = CONSENSUS_PRETTIFY.out.fasta      // channel: [ val(meta), [ fasta ] ]
+    consensus_outname = CONSENSUS_PRETTIFY.out.outname    // channel: [ val outname ]
 
-    quast_results    = CONSENSUS_QC.out.quast_results    // channel: [ val(meta), [ results ] ]
-    quast_tsv        = CONSENSUS_QC.out.quast_tsv        // channel: [ val(meta), [ tsv ] ]
+    quast_results     = CONSENSUS_QC.out.quast_results    // channel: [ val(meta), [ results ] ]
+    quast_tsv         = CONSENSUS_QC.out.quast_tsv        // channel: [ val(meta), [ tsv ] ]
 
-    pangolin_report  = CONSENSUS_QC.out.pangolin_report  // channel: [ val(meta), [ csv ] ]
+    pangolin_report   = CONSENSUS_QC.out.pangolin_report  // channel: [ val(meta), [ csv ] ]
 
-    nextclade_report = CONSENSUS_QC.out.nextclade_report // channel: [ val(meta), [ csv ] ]
+    nextclade_report  = CONSENSUS_QC.out.nextclade_report // channel: [ val(meta), [ csv ] ]
 
-    bases_tsv        = CONSENSUS_QC.out.bases_tsv        // channel: [ val(meta), [ tsv ] ]
-    bases_pdf        = CONSENSUS_QC.out.bases_pdf        // channel: [ val(meta), [ pdf ] ]
+    bases_tsv         = CONSENSUS_QC.out.bases_tsv        // channel: [ val(meta), [ tsv ] ]
+    bases_pdf         = CONSENSUS_QC.out.bases_pdf        // channel: [ val(meta), [ pdf ] ]
 
-    versions         = ch_versions                       // channel: [ versions.yml ]
+    versions          = ch_versions                       // channel: [ versions.yml ]
 }

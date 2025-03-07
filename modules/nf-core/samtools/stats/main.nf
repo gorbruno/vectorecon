@@ -2,7 +2,7 @@ process SAMTOOLS_STATS {
     tag "$meta.id"
     label 'process_single'
 
-    conda "bioconda::samtools=1.16.1"
+    conda "bioconda::samtools=1.21"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/samtools:1.16.1--h6899075_1' :
         'quay.io/biocontainers/samtools:1.16.1--h6899075_1' }"
@@ -19,7 +19,6 @@ process SAMTOOLS_STATS {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def reference = fasta ? "--reference ${fasta}" : ""
     """

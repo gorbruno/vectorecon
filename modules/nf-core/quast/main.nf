@@ -1,7 +1,7 @@
 process QUAST {
     label 'process_medium'
 
-    conda "bioconda::quast=5.2.0"
+    conda "bioconda::quast=5.3.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/quast:5.2.0--py39pl5321h2add14b_1' :
         'quay.io/biocontainers/quast:5.2.0--py39pl5321h2add14b_1' }"
@@ -39,7 +39,7 @@ process QUAST {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        quast: \$(quast.py --version 2>&1 | sed 's/^.*QUAST v//; s/ .*\$//')
+        quast: \$(quast.py --version 2>&1 | grep QUAST 2>&1 | sed 's/^.*QUAST v//; s/ .*\$//')
     END_VERSIONS
     """
 }

@@ -55,7 +55,7 @@ def collapse_primer_bed(file_in, file_out, left_primer_suffix, right_primer_suff
     while True:
         line = fin.readline()
         if line:
-            chrom, start, end, name, score, strand = line.strip().split("\t")
+            chrom, start, end, name, score, strand, sequence = line.strip().split("\t")
             primer = re.sub(r"(?:{}|{}).*".format(left_primer_suffix, right_primer_suffix), "", name)
             if primer not in interval_dict:
                 interval_dict[primer] = []

@@ -37,19 +37,19 @@ workflow VARIANTS_BCFTOOLS {
         .vcf
         .join(BCFTOOLS_MPILEUP.out.tbi)
         .join(BCFTOOLS_MPILEUP.out.stats)
-        .filter { meta, vcf, tbi, stats -> WorkflowCommons.getNumVariantsFromBCFToolsStats(stats) > 0 }
+        .filter { _meta, _vcf, _tbi, stats -> WorkflowCommons.getNumVariantsFromBCFToolsStats(stats) > 0 }
         .set { ch_vcf_tbi_stats }
 
     ch_vcf_tbi_stats
-        .map { meta, vcf, tbi, stats -> [ meta, vcf ] }
+        .map { meta, vcf, _tbi, _stats -> [ meta, vcf ] }
         .set { ch_vcf }
 
     ch_vcf_tbi_stats
-        .map { meta, vcf, tbi, stats -> [ meta, tbi ] }
+        .map { meta, _vcf, tbi, _stats -> [ meta, tbi ] }
         .set { ch_tbi }
 
     ch_vcf_tbi_stats
-        .map { meta, vcf, tbi, stats -> [ meta, stats ] }
+        .map { meta, _vcf, _tbi, stats -> [ meta, stats ] }
         .set { ch_stats }
 
     //

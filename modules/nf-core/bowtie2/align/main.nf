@@ -2,7 +2,7 @@ process BOWTIE2_ALIGN {
     tag "$meta.id"
     label "process_high"
 
-    conda "bioconda::bowtie2=2.4.4 bioconda::samtools=1.16.1 conda-forge::pigz=2.6"
+    conda "bioconda::bowtie2=2.5.4 bioconda::samtools=1.21 conda-forge::pigz=2.8"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-ac74a7f02cebcfcc07d8e8d1d750af9c83b4d45a:a0ffedb52808e102887f6ce600d092675bf3528a-0' :
         'quay.io/biocontainers/mulled-v2-ac74a7f02cebcfcc07d8e8d1d750af9c83b4d45a:a0ffedb52808e102887f6ce600d092675bf3528a-0' }"
@@ -40,7 +40,9 @@ process BOWTIE2_ALIGN {
     def samtools_command = sort_bam ? 'sort' : 'view'
 
     """
+    echo \$PWD
     INDEX=`find -L ./ -name "*.rev.1.bt2" | sed "s/\\.rev.1.bt2\$//"`
+    echo \$INDEX
     [ -z "\$INDEX" ] && INDEX=`find -L ./ -name "*.rev.1.bt2l" | sed "s/\\.rev.1.bt2l\$//"`
     [ -z "\$INDEX" ] && echo "Bowtie2 index files not found" 1>&2 && exit 1
 

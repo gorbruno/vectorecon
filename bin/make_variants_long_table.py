@@ -4,11 +4,10 @@ import os
 import sys
 import glob
 import errno
-import shutil
 import logging
 import argparse
 import pandas as pd
-from matplotlib import table
+from utils import save_excel
 
 
 logger = logging.getLogger()
@@ -70,6 +69,12 @@ def parser_args(args=None):
         type=str,
         default="variants_long_table.csv",
         help="Full path to output file (default: 'variants_long_table.csv').",
+    )
+    parser.add_argument(
+        "--excel",
+        action="store_true",
+        default=False,
+        help="Create corresponding excel table."
     )
     parser.add_argument(
         "-vc", "--variant_caller", type=str, default="ivar", help="Tool used to call the variants (default: 'ivar')."
@@ -244,7 +249,7 @@ def snpsift_to_table(snpsift_file):
 
     ## Amino acid substitution
     aa = []
-    for index, item in table["HGVS_P"].iteritems():
+    for index, item in table["HGVS_P"].items():
         hgvs_p = three_letter_aa_to_one(str(item))
         aa.append(hgvs_p)
     table["HGVS_P_1LETTER"] = pd.Series(aa)
@@ -263,7 +268,7 @@ def main(args=None):
     variant_callers = ["ivar", "bcftools", "nanopolish", "medaka"]
     if args.variant_caller not in variant_callers:
         logger.error(
-            f"Invalid option '--variant caller {args.variant_caller}'. Valid options: " + ", ".join(variant_callers)
+            f"Invalid option '--variant_caller {args.variant_caller}'. Valid options: " + ", ".join(variant_callers)
         )
         sys.exit(1)
 
@@ -319,6 +324,9 @@ def main(args=None):
     if sample_tables:
         merged_tables = pd.concat(sample_tables)
         merged_tables.to_csv(args.output_file, index=False, encoding="utf-8-sig")
+        if args.excel:
+            excel_name = args.output_file.replace("csv", "xlsx")
+            save_excel(merged_tables, excel_name)
 
 
 if __name__ == "__main__":

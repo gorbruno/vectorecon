@@ -50,13 +50,13 @@ workflow ASSEMBLY_UNICYCLER {
     GUNZIP_SCAFFOLDS
         .out
         .gunzip
-        .filter { meta, scaffold -> scaffold.size() > 0 }
+        .filter { _meta, scaffold -> scaffold.size() > 0 }
         .set { ch_scaffolds }
 
     GUNZIP_GFA
         .out
         .gunzip
-        .filter { meta, gfa -> gfa.size() > 0 }
+        .filter { _meta, gfa -> gfa.size() > 0 }
         .set { ch_gfa }
 
     //

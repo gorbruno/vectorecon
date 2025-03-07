@@ -40,7 +40,7 @@ workflow VARIANTS_IVAR {
     IVAR_VARIANTS
         .out
         .tsv
-        .filter { meta, tsv -> WorkflowCommons.getNumLinesInFile(tsv) > 1 }
+        .filter { _meta, tsv -> WorkflowCommons.getNumLinesInFile(tsv) > 1 }
         .set { ch_ivar_tsv }
 
     //

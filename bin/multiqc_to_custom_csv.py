@@ -2,10 +2,11 @@
 
 import os
 import sys
+import yaml
 import errno
 import argparse
-import yaml
-
+import pandas as pd
+from utils import save_excel
 
 def parse_args(args=None):
     Description = (
@@ -37,6 +38,14 @@ def parse_args(args=None):
         default="summary",
         help="Full path to output prefix (default: 'summary').",
     )
+    parser.add_argument(
+        "--excel",
+        action="store_true",
+        dest="EXCEL",
+        default=False,
+        help="Duplicate custom table with excel (default: false).",
+    )
+
     return parser.parse_args(args)
 
 
@@ -58,7 +67,6 @@ def find_tag(d, tag):
         if isinstance(v, dict):
             for i in find_tag(v, tag):
                 yield i
-
 
 def yaml_fields_to_dict(yaml_file, append_dict={}, field_mapping_list=[], valid_sample_list=[]):
     integer_fields = [
@@ -111,6 +119,7 @@ def yaml_fields_to_dict(yaml_file, append_dict={}, field_mapping_list=[], valid_
                                     )
                     else:
                         append_dict[key] = yaml_dict[k]
+
     else:
         print("WARNING: File does not exist: {}".format(yaml_file))
         if len(valid_sample_list) != 0:
@@ -129,21 +138,22 @@ def yaml_fields_to_dict(yaml_file, append_dict={}, field_mapping_list=[], valid_
                             )
                 else:
                     append_dict[key] = "NA"
+
     return append_dict
 
 
-def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_sample_list=[]):
+def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_sample_list=[], excel=False):
     metrics_dict = {}
     field_list = []
     for yaml_file, mapping_list in file_field_list:
-        yaml_file = os.path.join(multiqc_data_dir, yaml_file)
-        metrics_dict = yaml_fields_to_dict(
-            yaml_file=yaml_file,
-            append_dict=metrics_dict,
-            field_mapping_list=mapping_list,
-            valid_sample_list=valid_sample_list,
-        )
-        field_list += [x[0] for x in mapping_list]
+            yaml_file = os.path.join(multiqc_data_dir, yaml_file)
+            metrics_dict = yaml_fields_to_dict(
+                yaml_file=yaml_file,
+                append_dict=metrics_dict,
+                field_mapping_list=mapping_list,
+                valid_sample_list=valid_sample_list,
+            )
+            field_list += [x[0] for x in mapping_list]
 
     if metrics_dict != {}:
         make_dir(os.path.dirname(out_file))
@@ -157,13 +167,19 @@ def metrics_dict_to_file(file_field_list, multiqc_data_dir, out_file, valid_samp
                     if metrics_dict[k][field]:
                         row_list.append(str(metrics_dict[k][field]).replace(",", ";"))
                     else:
-                        row_list.append("NA")
+                        ## TODO: REWRITE THIS BLASPHEMOUS SCRIPT
+                        row_list.append("NA" if field not in ["% Coverage (fasta)", "# SNPs", "# INDELs", "# Missense variants", "Coverage median", "% Coverage > 1x", "% Coverage > 10x"] else "0")
                 else:
-                    row_list.append("NA")
+                    row_list.append("NA" if field not in ["% Coverage (fasta)", "# SNPs", "# INDELs", "# Missense variants", "Coverage median", "% Coverage > 1x", "% Coverage > 10x"] else "0")
             fout.write("{}\n".format(",".join(row_list)))
         fout.close()
-    return metrics_dict
 
+    ## Save excel table
+    if excel:
+        df = pd.read_csv(out_file)
+        save_excel(df, out_file.replace("csv", "xlsx"))
+
+    return metrics_dict
 
 def main(args=None):
     args = parse_args(args)
@@ -174,43 +190,93 @@ def main(args=None):
             "multiqc_fastp.yaml",
             [
                 ("# Input reads", ["before_filtering", "total_reads"]),
-                ("# Trimmed reads (fastp)", ["after_filtering", "total_reads"]),
+                ("# Trimmed reads", ["after_filtering", "total_reads"]),
+                ("Avg. length reads forward", ["after_filtering", "read1_mean_length"]),
+                ("Avg. length reads reverse", ["after_filtering", "read2_mean_length"]),
             ],
         ),
         (
-            "multiqc_general_stats.yaml",
+            "kraken-top-n-plot_Unclassified.yaml",
             [
                 (
-                    "% Non-host reads (Kraken 2)",
-                    ["PREPROCESS: Kraken 2_mqc-generalstats-preprocess_kraken_2-Unclassified"],
+                    "# Host reads", ["Other"],
                 )
             ],
         ),
-        ("multiqc_bowtie2.yaml", [("% Mapped reads", ["overall_alignment_rate"])]),
+        (
+            "multiqc_bowtie2.yaml",
+            [
+                (
+                    "% Mapped reads", ["overall_alignment_rate"]
+                )
+            ]
+        ),
         (
             "multiqc_samtools_flagstat_samtools_bowtie2.yaml",
-            [("# Mapped reads", ["mapped_passed"])],
+            [
+                (
+                    "# Mapped reads", ["mapped_passed"]
+                )
+            ],
         ),
         (
             "multiqc_samtools_flagstat_samtools_ivar.yaml",
-            [("# Trimmed reads (iVar)", ["flagstat_total"])],
+            [
+                (
+                    "# Primer trimmed reads", ["flagstat_total"]
+                )
+            ],
+        ),
+        (
+            "multiqc_ivar_trim_primer_statistics.yaml",
+            [
+                ("Left primers", ["plus"]),
+                ("Right primers", ["minus"])
+            ]
+        ),
+        (
+            "multiqc_nextclade_clade.yaml",
+            [
+                ("Lineage", ["lineage"]),
+                ("Clade", ["clade"]),
+                ("Clade name", ["clade_name"])
+            ]
         ),
         (
             "multiqc_general_stats.yaml",
             [
                 (
                     "Coverage median",
-                    ["VARIANTS: mosdepth_mqc-generalstats-variants_mosdepth-median_coverage"],
+                    ["variants_mosdepth-median_coverage"],
                 ),
                 (
                     "% Coverage > 1x",
-                    ["VARIANTS: mosdepth_mqc-generalstats-variants_mosdepth-1_x_pc"],
+                    ["variants_mosdepth-1_x_pc"],
                 ),
                 (
                     "% Coverage > 10x",
-                    ["VARIANTS: mosdepth_mqc-generalstats-variants_mosdepth-10_x_pc"],
+                    ["variants_mosdepth-10_x_pc"],
                 ),
             ],
+        ),
+        (
+            "samtools-coverage-table.yaml",
+            [
+                (
+                    "Mean depth",
+                    ["Mean depth"]
+                ),
+                (
+                    "% Coverage (bam)",
+                    ["Coverage"]
+                )
+            ]
+        ),
+        (
+            "multiqc_nextclade_clade.yaml",
+            [
+                ("% Coverage (fasta)", ["coverage_fasta"])
+            ]
         ),
         (
             "multiqc_bcftools_stats.yaml",
@@ -221,17 +287,16 @@ def main(args=None):
         ),
         (
             "multiqc_snpeff.yaml",
-            [("# Missense variants", ["MISSENSE"])],
+            [
+                ("# Missense variants", ["MISSENSE"])
+            ],
         ),
-        (
-            "multiqc_quast_quast_variants.yaml",
-            [("# Ns per 100kb consensus", ["# N's per 100 kbp"])],
-        ),
-        (
-            "multiqc_pangolin.yaml",
-            [("Pangolin lineage", ["lineage"])],
-        ),
-        ("multiqc_nextclade_clade-plot.yaml", [("Nextclade clade", ["clade"])]),
+        #(
+        #    "multiqc_quast_quast_variants.yaml",
+        #    [
+        #        ("# Ns per 100kb consensus", ["# N''s per 100 kbp"]) ## ???
+        #    ],
+        #)
     ]
 
     illumina_assembly_files = [
@@ -298,7 +363,7 @@ def main(args=None):
         ("multiqc_snpeff.yaml", [("# Missense variants", ["MISSENSE"])]),
         ("multiqc_quast.yaml", [("# Ns per 100kb consensus", ["# N's per 100 kbp"])]),
         ("multiqc_pangolin.yaml", [("Pangolin lineage", ["lineage"])]),
-        ("multiqc_nextclade_clade-plot.yaml", [("Nextclade clade", ["clade"])]),
+        ("multiqc_nextclade_clade.yaml", [("Nextclade clade", ["clade"])]),
     ]
 
     if args.PLATFORM == "illumina":
@@ -324,6 +389,7 @@ def main(args=None):
             multiqc_data_dir=args.MULTIQC_DATA_DIR,
             out_file=args.OUT_PREFIX + "_variants_metrics_mqc.csv",
             valid_sample_list=is_pe_dict.keys(),
+            excel=args.EXCEL
         )
 
         ## Write de novo assembly metrics to file
@@ -332,6 +398,7 @@ def main(args=None):
             multiqc_data_dir=args.MULTIQC_DATA_DIR,
             out_file=args.OUT_PREFIX + "_assembly_metrics_mqc.csv",
             valid_sample_list=is_pe_dict.keys(),
+            excel=args.EXCEL
         )
 
     elif args.PLATFORM == "nanopore":
@@ -352,6 +419,7 @@ def main(args=None):
             multiqc_data_dir=args.MULTIQC_DATA_DIR,
             out_file=args.OUT_PREFIX + "_variants_metrics_mqc.csv",
             valid_sample_list=sample_list,
+            excel=args.EXCEL
         )
 
     else:

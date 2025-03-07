@@ -2,7 +2,7 @@ process CAT_FASTQ {
     tag "$meta.id"
     label 'process_single'
 
-    conda "conda-forge::sed=4.7"
+    conda "conda-forge::sed=4.9"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/ubuntu:20.04' :
         'ubuntu:20.04' }"
@@ -18,7 +18,6 @@ process CAT_FASTQ {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def readList = reads instanceof List ? reads.collect{ it.toString() } : [reads.toString()]
     if (meta.single_end) {

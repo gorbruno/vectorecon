@@ -1,7 +1,7 @@
 process MULTIQC {
     label 'process_medium'
 
-    conda "bioconda::multiqc=1.14"
+    conda "bioconda::multiqc=1.27 conda-forge::pandas=2.2.3 conda-forge::xlsxwriter=3.2.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.14--pyhdfd78af_0' :
         'quay.io/biocontainers/multiqc:1.14--pyhdfd78af_0' }"
@@ -9,6 +9,7 @@ process MULTIQC {
     input:
     path 'multiqc_config.yaml'
     path multiqc_custom_config
+    val  outname
     path software_versions
     path workflow_summary
     path fail_reads_summary
@@ -19,6 +20,9 @@ process MULTIQC {
     path ('kraken2/*')
     path ('bowtie2/*')
     path ('bowtie2/*')
+    path ('bowtie2/*')
+    path ('ivar_trim/*')
+    path ('ivar_trim/*')
     path ('ivar_trim/*')
     path ('picard_markduplicates/*')
     path ('mosdepth/*')
@@ -34,43 +38,58 @@ process MULTIQC {
     path ('assembly_minia/*')
 
     output:
-    path "*multiqc_report.html"     , emit: report
-    path "*_data"                   , emit: data
-    path "*variants_metrics_mqc.csv", optional:true, emit: csv_variants
-    path "*assembly_metrics_mqc.csv", optional:true, emit: csv_assembly
-    path "*_plots"                  , optional:true, emit: plots
-    path "versions.yml"             , emit: versions
+    path "*.html"                    , emit: report
+    path "*_data"                    , emit: data
+    path "*.csv"                     , optional:true, emit: csv_variants
+    path "*.xlsx"                    , optional:true, emit: excel_variants
+    path "*_plots"                   , optional:true, emit: plots
+    path "versions.yml"              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: ''
     def custom_config = multiqc_custom_config ? "--config $multiqc_custom_config" : ''
     """
     ## Run MultiQC once to parse tool logs
     multiqc -f $args $custom_config .
 
     ## Parse YAML files dumped by MultiQC to obtain metrics
-    multiqc_to_custom_csv.py --platform illumina
+    multiqc_to_custom_csv.py --platform illumina $args2
 
     ## Manually remove files that we don't want in the report
     if grep -q ">skip_assembly<" workflow_summary_mqc.yaml; then
-        rm -f *assembly_metrics_mqc.csv
+        rm -f *assembly_metrics_mqc*
     fi
 
     if grep -q ">skip_variants<" workflow_summary_mqc.yaml; then
-        rm -f *variants_metrics_mqc.csv
+        rm -f *variants_metrics_mqc*
     fi
 
-    rm -f variants/report.tsv
+    ## WHY IGNORE DON'T WORK
+
+    rm -rf variants/report.tsv ignore
+    rm -rf variants/nextclade_clade_mqc.tsv ignore
+    rm -rf multiqc_data/multiqc_nextclade_clade.yaml ignore
+    rm -rf multiqc_data/multiqc_ivar_trim_primer_statistics.yaml ignore
+    rm -rf ivar_trim/ivar_trim_primer_statistics_mqc.tsv ignore
 
     ## Run MultiQC a second time
-    multiqc -f $args -e general_stats --ignore nextclade_clade_mqc.tsv $custom_config .
+    multiqc -f $args -e general_stats $custom_config .
+
+    if [[ $outname != "merged" ]]; then
+      # find . -name "*metrics_mqc.*" -exec sh -c 'mv \$1 ${outname}.metrics.\${1##*.}' rename {} \; TODO
+      mv *metrics_mqc.csv ${outname}.metrics.csv
+      mv *metrics_mqc.xlsx ${outname}.metrics.xlsx # may fail :)
+      mv multiqc_report.html ${outname}.multiqc.html
+    fi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         multiqc: \$( multiqc --version | sed -e "s/multiqc, version //g" )
+        python: \$(python --version | sed 's/Python //g')
     END_VERSIONS
     """
 }
