@@ -15,6 +15,7 @@ workflow CONSENSUS_BCFTOOLS {
     take:
     bam          // channel: [ val(meta), [ bam ] ]
     vcf          // channel: [ val(meta), [ vcf ] ]
+    _tbi          // channel: [ val(meta), [ tbi ] ]
     fasta        // channel: /path/to/genome.fasta
     gff          // channel: /path/to/genome.gff
     nextclade_db // channel: /path/to/nextclade_db/
