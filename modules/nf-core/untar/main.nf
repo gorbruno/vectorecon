@@ -4,8 +4,8 @@ process UNTAR {
 
     conda "conda-forge::sed=4.8 conda-forge::grep=3.11 conda-forge::tar=1.34 conda-forge::pigz=2.8"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ubuntu:20.04' :
-        'ubuntu:20.04' }"
+        'https://depot.galaxyproject.org/singularity/pigz:2.8':
+        'biocontainers/pigz:2.8' }"
 
     input:
     tuple val(meta), path(archive)
