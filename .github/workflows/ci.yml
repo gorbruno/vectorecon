@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev
+      - feature-branch
   pull_request:
   release:
     types: [published]
@@ -19,12 +20,12 @@ jobs:
   test:
     name: Run pipeline with test data
     # Only run on push if this is the nf-core dev branch (merged PRs)
-    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/viralrecon') }}"
+    if: "${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'gorbruno/vectorecon') }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
         NXF_VER:
-          - "22.10.1"
+          - "24.10.5"
           - "latest-everything"
     steps:
       - name: Check out pipeline code
@@ -41,7 +42,7 @@ jobs:
 
   parameters:
     name: Test workflow parameters
-    if: ${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/viralrecon') }}
+    if: ${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'gorbruno/vectorecon') }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -52,10 +53,7 @@ jobs:
           - "--skip_variants"
           - "--skip_cutadapt --skip_snpeff"
           - "--skip_kraken2"
-          - "--skip_assembly"
-          - "--spades_mode corona"
-          - "--spades_mode metaviral"
-          - "--skip_plasmidid false --skip_asciigenome"
+          - "--skip_asciigenome"
     steps:
       - name: Check out pipeline code
         uses: actions/checkout@v2
@@ -67,52 +65,4 @@ jobs:
 
       - name: Run pipeline with various parameters
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,docker ${{ matrix.parameters }} --outdir ./results
-
-  test_sispa:
-    name: Test SISPA workflow
-    if: ${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/viralrecon') }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        parameters:
-          - "--gff false"
-          - "--genome 'NC_045512.2'"
-    steps:
-      - name: Check out pipeline code
-        uses: actions/checkout@v2
-
-      - name: Install Nextflow
-        run: |
-          wget -qO- get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-
-      - name: Run pipeline with minimal SISPA data and various options
-        run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test_sispa,docker ${{ matrix.parameters }} --outdir ./results
-
-  test_nanopore:
-    name: Test Nanopore workflow
-    if: ${{ github.event_name != 'push' || (github.event_name == 'push' && github.repository == 'nf-core/viralrecon') }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        parameters:
-          - "--gff false"
-          - "--input false"
-          - "--min_barcode_reads 10000"
-          - "--min_guppyplex_reads 10000"
-          - "--artic_minion_caller medaka --sequencing_summary false --fast5_dir false"
-          - "--artic_minion_caller medaka --sequencing_summary false --fast5_dir false --artic_minion_medaka_model r941_min_high_g360"
-    steps:
-      - name: Check out pipeline code
-        uses: actions/checkout@v2
-
-      - name: Install Nextflow
-        run: |
-          wget -qO- get.nextflow.io | bash
-          sudo mv nextflow /usr/local/bin/
-
-      - name: Run pipeline with minimal Nanopore data and various options
-        run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test_nanopore,docker ${{ matrix.parameters }} --outdir ./results
+          nextflow run ${GITHUB_WORKSPACE} -profile test_full,docker --skip_assembly ${{ matrix.parameters }} --outdir ./results
