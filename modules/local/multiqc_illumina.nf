@@ -70,11 +70,11 @@ process MULTIQC {
 
     ## WHY IGNORE DON'T WORK
 
-    rm -rf variants/report.tsv ignore
-    rm -rf variants/nextclade_clade_mqc.tsv ignore
-    rm -rf multiqc_data/multiqc_nextclade_clade.yaml ignore
-    rm -rf multiqc_data/multiqc_ivar_trim_primer_statistics.yaml ignore
-    rm -rf ivar_trim/ivar_trim_primer_statistics_mqc.tsv ignore
+    rm -rf variants/report.tsv
+    rm -rf variants/nextclade_clade_mqc.tsv
+    rm -rf multiqc_data/multiqc_nextclade_clade.yaml
+    rm -rf multiqc_data/multiqc_ivar_trim_primer_statistics.yaml
+    rm -rf ivar_trim/ivar_trim_primer_statistics_mqc.tsv
 
     ## Run MultiQC a second time
     multiqc -f $args -e general_stats $custom_config .
