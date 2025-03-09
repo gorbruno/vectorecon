@@ -55,7 +55,12 @@ def collapse_primer_bed(file_in, file_out, left_primer_suffix, right_primer_suff
     while True:
         line = fin.readline()
         if line:
-            chrom, start, end, name, score, strand, sequence = line.strip().split("\t")
+            # TODO REWRITE WITH COMPLEX LOGIC
+            col_vals: list[str | int] = line.strip().split("\t")
+            if len(col_vals) ==7:
+                chrom, start, end, name, score, strand, sequence = col_vals
+            elif len(col_vals) == 6:
+                chrom, start, end, name, score, strand = col_vals
             primer = re.sub(r"(?:{}|{}).*".format(left_primer_suffix, right_primer_suffix), "", name)
             if primer not in interval_dict:
                 interval_dict[primer] = []
