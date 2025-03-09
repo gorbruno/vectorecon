@@ -47,8 +47,7 @@ jobs:
     strategy:
       matrix:
         parameters:
-          - "--consensus_caller ivar"
-          - "--variant_caller bcftools --consensus_caller ivar"
+          - "--variant_caller bcftools"
           - "--skip_fastp --skip_pangolin"
           - "--skip_variants"
           - "--skip_cutadapt --skip_snpeff"
@@ -65,4 +64,4 @@ jobs:
 
       - name: Run pipeline with various parameters
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test_full,docker --skip_assembly ${{ matrix.parameters }} --outdir ./results
+          nextflow run ${GITHUB_WORKSPACE} -profile test_full,docker ${{ matrix.parameters }} --outdir ./results

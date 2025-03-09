@@ -392,10 +392,10 @@ workflow ILLUMINA {
         ch_versions         = ch_versions.mix(MOSDEPTH_GENOME.out.versions.first().ifEmpty(null))
 
         if (!params.skip_coverage_plots) {
-          PLOT_MOSDEPTH_REGIONS_GENOME (
-              MOSDEPTH_GENOME.out.regions_bed.collect { it[1] }
-          )
-          ch_versions = ch_versions.mix(PLOT_MOSDEPTH_REGIONS_GENOME.out.versions)
+            PLOT_MOSDEPTH_REGIONS_GENOME (
+                MOSDEPTH_GENOME.out.regions_bed.collect { it[1] }
+            )
+            ch_versions = ch_versions.mix(PLOT_MOSDEPTH_REGIONS_GENOME.out.versions)
         }
 
         if (params.protocol == 'amplicon') {
@@ -407,11 +407,11 @@ workflow ILLUMINA {
             ch_versions = ch_versions.mix(MOSDEPTH_AMPLICON.out.versions.first().ifEmpty(null))
 
             if (!params.skip_coverage_plots) {
-              PLOT_MOSDEPTH_REGIONS_AMPLICON (
-                  MOSDEPTH_AMPLICON.out.regions_bed.collect { it[1] }
-              )
-              ch_amplicon_heatmap_multiqc = PLOT_MOSDEPTH_REGIONS_AMPLICON.out.heatmap_tsv
-              ch_versions                 = ch_versions.mix(PLOT_MOSDEPTH_REGIONS_AMPLICON.out.versions)
+                PLOT_MOSDEPTH_REGIONS_AMPLICON (
+                    MOSDEPTH_AMPLICON.out.regions_bed.collect { it[1] }
+                )
+                ch_amplicon_heatmap_multiqc = PLOT_MOSDEPTH_REGIONS_AMPLICON.out.heatmap_tsv
+                ch_versions                 = ch_versions.mix(PLOT_MOSDEPTH_REGIONS_AMPLICON.out.versions)
             }
         }
     }
